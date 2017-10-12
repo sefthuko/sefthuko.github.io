@@ -27,6 +27,16 @@
                              dataType: tableau.dataTypeEnum.int
                          }]
             }]);
+        } else if(config.type === "wholeNumberList") {
+            schemaCallback([{
+                id: "wholeNumberList",
+                description: "List of whole numbers",
+                columns: [{
+                             id: config.name,
+                             description: config.description,
+                             dataType: tableau.dataTypeEnum.int
+                         }]
+            }]);
         } else if(config.type === "decimalNumberRange") {
             schemaCallback([{
                 id: "decimalNumberRange",
@@ -62,6 +72,16 @@
 
             table.appendRows(tableData);
             doneCallback();
+        } else if(config.type === "wholeNumberList") {
+            var tableData = [];
+            for(var i = 0; i < config.values.length; i++) {
+                var row = {};
+                row[config.name] = config.values[i]; 
+                tableData.push(row);
+            }
+
+            table.appendRows(tableData);
+            doneCallback();
         } else if(config.type === "decimalNumberRange") {
             var tableData = [];
             if(config.step < 0) {
@@ -93,7 +113,7 @@
             var rangeStep = parseInt($("#whole-number-range-step").val()); 
             var rangeName = $("#whole-number-range-name").val(); 
             var rangeDescription = $("#whole-number-range-description").val(); 
-            tableau.connectionName = "Start=" + rangeStart + ",End=" + rangeEnd + ",Step=" + rangeStep;
+            tableau.connectionName = "Whole Numbers";
             tableau.connectionData = JSON.stringify({
                 type: "wholeNumberRange",
                 start: rangeStart,
@@ -104,13 +124,34 @@
             tableau.submit();
         });
 
+        $("#submit-whole-number-list").click(function() {
+            var listValueStrs = $("#whole-number-list-values").val().split("\n"); 
+            var listValues = [];
+            for(var i = 0; i < listValueStrs.length; i++) {
+                var value = parseInt(listValueStrs[i]);
+
+                if(typeof value === "number" && !isNaN(value - value)) {
+                    listValues.push(value);
+                }
+            }
+            var listName = $("#whole-number-list-name").val(); 
+            var listDescription = $("#whole-number-list-description").val(); 
+            tableau.connectionName = "Whole Numbers";
+            tableau.connectionData = JSON.stringify({
+                type: "wholeNumberList",
+                values: listValues,
+                name: listName,
+                description: listDescription});
+            tableau.submit();
+        });
+
         $("#submit-decimal-number-range").click(function() {
             var rangeStart = parseFloat($("#decimal-number-range-start").val()); 
             var rangeEnd = parseFloat($("#decimal-number-range-end").val()); 
             var rangeStep = parseFloat($("#decimal-number-range-step").val()); 
             var rangeName = $("#decimal-number-range-name").val(); 
             var rangeDescription = $("#decimal-number-range-description").val(); 
-            tableau.connectionName = "Start=" + rangeStart + ",End=" + rangeEnd + ",Step=" + rangeStep;
+            tableau.connectionName = "Decimal Numbers";
             tableau.connectionData = JSON.stringify({
                 type: "decimalNumberRange",
                 start: rangeStart,
@@ -152,7 +193,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2" for="whole-number-range-description">Field Description:</label>
+                    <label class="control-label col-sm-2" for="whole-number-range-description">Description:</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="whole-number-range-description" value="A generated number sequence">
                     </div>
@@ -181,6 +222,43 @@
                     </div>
                 </div>
             </form>
+            <p/>
+            <h3>Integer List</h3>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <i>Stick a list of values into Tableau as a datasource.  The provided example represents [1, -17, 1, 5]</i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="whole-number-list-name">Field Name:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="whole-number-list-name" value="Number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="whole-number-list-description">Description:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="whole-number-list-description" value="A generated number sequence">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="whole-number-list-values">Values:</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="whole-number-list-values" rows="10">
+1
+-17
+1
+5
+                        </textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" id="submit-whole-number-list" class="btn btn-default">Create</button>
+                    </div>
+                </div>
+            </form>
         </div>
         <div id="decimal-number" class="tab-pane fade">
             <h3>Float Sequence</h3>
@@ -197,7 +275,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-sm-2" for="decimal-number-range-description">Field Description:</label>
+                    <label class="control-label col-sm-2" for="decimal-number-range-description">Description:</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="decimal-number-range-description" value="A generated number sequence">
                     </div>
