@@ -27,6 +27,16 @@
                              dataType: tableau.dataTypeEnum.int
                          }]
             }]);
+        } else if(config.type === "decimalNumberRange") {
+            schemaCallback([{
+                id: "decimalNumberRange",
+                description: "Range of decimal numbers",
+                columns: [{
+                             id: config.name,
+                             description: config.description,
+                             dataType: tableau.dataTypeEnum.float
+                         }]
+            }]);
         }
     };
 
@@ -35,6 +45,24 @@
         var config = JSON.parse(tableau.connectionData);
 
         if(config.type === "wholeNumberRange") {
+            var tableData = [];
+            if(config.step < 0) {
+                for(var i = config.start; i >= config.end; i += config.step) {
+                    var row = {};
+                    row[config.name] = i; 
+                    tableData.push(row);
+                }
+            } else if(config.step > 0) {
+                for(var i = config.start; i <= config.end; i += config.step) {
+                    var row = {};
+                    row[config.name] = i; 
+                    tableData.push(row);
+                }
+            }
+
+            table.appendRows(tableData);
+            doneCallback();
+        } else if(config.type === "decimalNumberRange") {
             var tableData = [];
             if(config.step < 0) {
                 for(var i = config.start; i >= config.end; i += config.step) {
@@ -75,6 +103,23 @@
                 description: rangeDescription});
             tableau.submit();
         });
+
+        $("#submit-decimal-number-range").click(function() {
+            var rangeStart = parseFloat($("#decimal-number-range-start").val()); 
+            var rangeEnd = parseFloat($("#decimal-number-range-end").val()); 
+            var rangeStep = parseFloat($("#decimal-number-range-step").val()); 
+            var rangeName = $("#decimal-number-range-name").val(); 
+            var rangeDescription = $("#decimal-number-range-description").val(); 
+            tableau.connectionName = "Start=" + rangeStart + ",End=" + rangeEnd + ",Step=" + rangeStep;
+            tableau.connectionData = JSON.stringify({
+                type: "decimalNumberRange",
+                start: rangeStart,
+                end: rangeEnd,
+                step: rangeStep,
+                name: rangeName,
+                description: rangeDescription});
+            tableau.submit();
+        });
     });
 })();
     </script>
@@ -82,6 +127,11 @@
 
 <body>
     <div class="container container-table">
+
+        <!--
+        WHOLE NUMBER SEQUENCES
+        -->
+
         <h3>Whole Number Sequences</h3>
         <form class="form-horizontal">
             <div class="form-group">
@@ -110,18 +160,66 @@
             <div class="form-group">
                 <label class="control-label col-sm-2" for="whole-number-range-end">End:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="whole-number-range-end" value="100">
+                    <input type="text" class="form-control" id="whole-number-range-end" value="6">
                 </div>
             </div>
             <div class="form-group">
                 <label class="control-label col-sm-2" for="whole-number-range-step">Step:</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="whole-number-range-step" value="1">
+                    <input type="text" class="form-control" id="whole-number-range-step" value="2">
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
                     <button type="button" id="submit-whole-number-range" class="btn btn-default">Create</button>
+                </div>
+            </div>
+        </form>
+
+        <!--
+        DECIMAL NUMBER SEQUENCES
+        -->
+
+        <h3>Decimal Number Sequences</h3>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <i>Generate a list of values between "Start" and "End", incrementing by "Step".  For example, for Start=1.1, End=6, Step=1.5, this will generate [1.1, 2.6, 4.1, 5.6]</i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-name">Field Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-name" value="Number">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-description">Field Description:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-description" value="A generated number sequence">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-start">Start:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-start" value="1.1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-end">End:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-end" value="6">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-step">Step:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-step" value="1.5">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" id="submit-decimal-number-range" class="btn btn-default">Create</button>
                 </div>
             </div>
         </form>
