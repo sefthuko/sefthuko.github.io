@@ -9,6 +9,11 @@
 
     <script src="https://connectors.tableau.com/libs/tableauwdc-2.0.latest.js" type="text/javascript"></script>
     <script>
+
+function jsDateToDate(jsDate) {
+    return jsDate.getFullYear() + "-" + (jsDate.getMonth()+1) + "-" + jsDate.getDate();
+}
+
 (function() {
     // Create the connector object
     var myConnector = tableau.makeConnector();
@@ -45,6 +50,26 @@
                              id: config.name,
                              description: config.description,
                              dataType: tableau.dataTypeEnum.float
+                         }]
+            }]);
+        } else if(config.type === "decimalNumberList") {
+            schemaCallback([{
+                id: "decimalNumberList",
+                description: "List of decimal numbers",
+                columns: [{
+                             id: config.name,
+                             description: config.description,
+                             dataType: tableau.dataTypeEnum.float
+                         }]
+            }]);
+        } else if(config.type === "dateWithDayStepRange") {
+            schemaCallback([{
+                id: "dateWithDayStepRange",
+                description: "Range of dates",
+                columns: [{
+                             id: config.name,
+                             description: config.description,
+                             dataType: tableau.dataTypeEnum.date
                          }]
             }]);
         }
@@ -100,7 +125,38 @@
 
             table.appendRows(tableData);
             doneCallback();
-        } 
+        } else if(config.type === "decimalNumberList") {
+            var tableData = [];
+            for(var i = 0; i < config.values.length; i++) {
+                var row = {};
+                row[config.name] = config.values[i]; 
+                tableData.push(row);
+            }
+
+            table.appendRows(tableData);
+            doneCallback();
+        } else if(config.type === "dateWithDayStepRange") {
+            var tableData = [];
+            var start = new Date(config.start);
+            var end = new Date(config.end);
+
+            if(config.step < 0) {
+                for(var i = start; i >= end; i.setDate(i.getDate() + config.step)) {
+                    var row = {};
+                    row[config.name] = jsDateToDate(i);
+                    tableData.push(row);
+                }
+            } else if(config.step > 0) {
+                for(var i = start; i <= end; i.setDate(i.getDate() + config.step)) {
+                    var row = {};
+                    row[config.name] = jsDateToDate(i);
+                    tableData.push(row);
+                }
+            }
+
+            table.appendRows(tableData);
+            doneCallback();
+        }
     };
 
     tableau.registerConnector(myConnector);
@@ -161,6 +217,45 @@
                 description: rangeDescription});
             tableau.submit();
         });
+
+        $("#submit-decimal-number-list").click(function() {
+            var listValueStrs = $("#decimal-number-list-values").val().split("\n"); 
+            var listValues = [];
+            for(var i = 0; i < listValueStrs.length; i++) {
+                var value = parseFloat(listValueStrs[i]);
+
+                if(typeof value === "number" && !isNaN(value - value)) {
+                    listValues.push(value);
+                }
+            }
+            var listName = $("#decimal-number-list-name").val(); 
+            var listDescription = $("#decimal-number-list-description").val(); 
+            tableau.connectionName = "Decimal Numbers";
+            tableau.connectionData = JSON.stringify({
+                type: "decimalNumberList",
+                values: listValues,
+                name: listName,
+                description: listDescription});
+            tableau.submit();
+        });
+
+        $("#submit-date-with-day-step-range").click(function() {
+            var rangeStart = new Date($("#date-with-day-step-range-start").val()); 
+            var rangeEnd = new Date($("#date-with-day-step-range-end").val()); 
+            var rangeStep = parseInt($("#date-with-day-step-range-step").val()); 
+            var rangeName = $("#date-with-day-step-range-name").val(); 
+            var rangeDescription = $("#date-with-day-step-range-description").val(); 
+            tableau.connectionName = "Dates";
+            tableau.connectionData = JSON.stringify({
+                type: "dateWithDayStepRange",
+                start: rangeStart,
+                end: rangeEnd,
+                step: rangeStep,
+                name: rangeName,
+                description: rangeDescription});
+            tableau.submit();
+        });
+
     });
 })();
     </script>
@@ -175,11 +270,19 @@
             <li>
                 <a data-toggle="tab" href="#decimal-number">Number (decimal)</a>
             </li>
+            <li>
+                <a data-toggle="tab" href="#date">Date</a>
+            </li>
+            <li>
+                <a data-toggle="tab" href="#datetime">Date & Time</a>
+            </li>
         </ul>
     </div>
     <div class="tab-content">
         <div id="whole-number" class="tab-pane fade in active">
-            <h3>Integer Sequence</h3>
+            <div class="col-sm-10">
+                <h3>Integer Sequence</h3>
+            </div>
             <form class="form-horizontal">
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
@@ -223,7 +326,9 @@
                 </div>
             </form>
             <p/>
-            <h3>Integer List</h3>
+            <div class="col-sm-10">
+                <h3>Integer List</h3>
+            </div>
             <form class="form-horizontal">
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
@@ -261,7 +366,9 @@
             </form>
         </div>
         <div id="decimal-number" class="tab-pane fade">
-            <h3>Float Sequence</h3>
+            <div class="col-sm-10">
+                <h3>Float Sequence</h3>
+            </div>
             <form class="form-horizontal">
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
@@ -304,6 +411,93 @@
                     </div>
                 </div>
             </form>
+            <p/>
+            <div class="col-sm-10">
+                <h3>Float List</h3>
+            </div>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <i>Stick a list of values into Tableau as a datasource.  The provided example represents [1.3, -7, 5.1]</i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="decimal-number-list-name">Field Name:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="decimal-number-list-name" value="Number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="decimal-number-list-description">Description:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="decimal-number-list-description" value="A generated number sequence">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="decimal-number-list-values">Values:</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="decimal-number-list-values" rows="10">
+1.3
+-7
+5.1
+                        </textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" id="submit-decimal-number-list" class="btn btn-default">Create</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div id="date" class="tab-pane fade">
+            <div class="col-sm-10">
+                <h3>Date with Day Increment Sequence</h3>
+            </div>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <i>Generate a list of dates between "Start" and "End", incrementing by "Step" days.  For example, for Start=1/1/2017, End=1/6/2017, Step=2, this will generate [1/1/2017, 1/3/2017, 1/5/2017]</i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="date-with-day-step-range-name">Field Name:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="date-with-day-step-range-name" value="Date">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="date-with-day-step-range-description">Description:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="date-with-day-step-range-description" value="A generated date sequence">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="date-with-day-step-range-start">Start:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="date-with-day-step-range-start" value="1/1/2017">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="date-with-day-step-range-end">End:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="date-with-day-step-range-end" value="1/6/2017">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="date-with-day-step-range-step">Day Step:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="date-with-day-step-range-step" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="button" id="submit-date-with-day-step-range" class="btn btn-default">Create</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div id="datetime" class="tab-pane fade">
         </div>
     </div>
 </body>
