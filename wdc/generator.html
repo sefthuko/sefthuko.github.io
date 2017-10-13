@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>USGS Earthquake Feed</title>
+    <title>Sequence Generator-as-a-Datasource</title>
     <meta http-equiv="Cache-Control" content="no-store" />
 
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -354,323 +354,330 @@ function inputToJsDate(input) {
 </head>
 
 <body>
-    <div class="container container-table">
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a data-toggle="tab" href="#whole-number">Number (whole)</a>
-            </li>
-            <li>
-                <a data-toggle="tab" href="#decimal-number">Number (decimal)</a>
-            </li>
-            <li>
-                <a data-toggle="tab" href="#date">Date</a>
-            </li>
-            <li>
-                <a data-toggle="tab" href="#datetime">Date & Time</a>
-            </li>
-            <li>
-                <a data-toggle="tab" href="#string">String</a>
-            </li>
-        </ul>
+    <div class="col-sm-12" style="background-color:BlanchedAlmond;">
+        <p/>
+        <p/>
+        <i>Sometimes you need to be able to do an 'outer join' against sparse data.  Like if you have a few dates and you want to lay those across a calendar, but you want to color code a mark for every single day.  Or if you have a bunch of potential output categories but your viz doesn't currently show them all, and you want to have a category displayed for each one.
+        <p/>
+        <p/>
+        If there's a sequence not represented here, please send me an email at <a href="mailto:Hermann.Chong@tableau.com">Hermann.Chong@tableau.com</a></i>
     </div>
-    <div class="tab-content">
-        <div id="whole-number" class="tab-pane fade in active">
-            <div class="col-sm-10">
-                <h3>Integer Sequence</h3>
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a data-toggle="tab" href="#whole-number">Number (whole)</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#decimal-number">Number (decimal)</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#date">Date</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#datetime">Date & Time</a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#string">String</a>
+        </li>
+    </ul>
+</div>
+<div class="tab-content">
+    <div id="whole-number" class="tab-pane fade in active">
+        <div class="col-sm-10">
+            <h3>Integer Sequence</h3>
+        </div>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <i>Generate a list of values between "Start" and "End", incrementing by "Step".  For example, for Start=1, End=6, Step=2, this will generate [1, 3, 5]</i>
+                </div>
             </div>
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <i>Generate a list of values between "Start" and "End", incrementing by "Step".  For example, for Start=1, End=6, Step=2, this will generate [1, 3, 5]</i>
-                    </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="whole-number-range-name">Field Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="whole-number-range-name" value="Number">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="whole-number-range-name">Field Name:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="whole-number-range-name" value="Number">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="whole-number-range-description">Description:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="whole-number-range-description" value="A generated number sequence">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="whole-number-range-start">Start:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="whole-number-range-start" value="1">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="whole-number-range-end">End:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="whole-number-range-end" value="6">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="whole-number-range-step">Step:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="whole-number-range-step" value="2">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="submit-whole-number-range" class="btn btn-default">Create</button>
-                    </div>
-                </div>
-            </form>
-            <p/>
-            <div class="col-sm-10">
-                <h3>Integer List</h3>
             </div>
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <i>Stick a list of values into Tableau as a datasource.  The provided example represents [1, -17, 1, 5]</i>
-                    </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="whole-number-range-description">Description:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="whole-number-range-description" value="A generated number sequence">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="whole-number-list-name">Field Name:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="whole-number-list-name" value="Number">
-                    </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="whole-number-range-start">Start:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="whole-number-range-start" value="1">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="whole-number-list-description">Description:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="whole-number-list-description" value="A generated number sequence">
-                    </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="whole-number-range-end">End:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="whole-number-range-end" value="6">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="whole-number-list-values">Values:</label>
-                    <div class="col-sm-10">
-                        <textarea class="form-control" id="whole-number-list-values" rows="10">
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="whole-number-range-step">Step:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="whole-number-range-step" value="2">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" id="submit-whole-number-range" class="btn btn-default">Create</button>
+                </div>
+            </div>
+        </form>
+        <p/>
+        <div class="col-sm-10">
+            <h3>Integer List</h3>
+        </div>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <i>Stick a list of values into Tableau as a datasource.  The provided example represents [1, -17, 1, 5]</i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="whole-number-list-name">Field Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="whole-number-list-name" value="Number">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="whole-number-list-description">Description:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="whole-number-list-description" value="A generated number sequence">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="whole-number-list-values">Values:</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="whole-number-list-values" rows="10">
 1
 -17
 1
 5
-                        </textarea>
-                    </div>
+                    </textarea>
                 </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="submit-whole-number-list" class="btn btn-default">Create</button>
-                    </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" id="submit-whole-number-list" class="btn btn-default">Create</button>
                 </div>
-            </form>
+            </div>
+        </form>
+    </div>
+    <div id="decimal-number" class="tab-pane fade">
+        <div class="col-sm-10">
+            <h3>Float Sequence</h3>
         </div>
-        <div id="decimal-number" class="tab-pane fade">
-            <div class="col-sm-10">
-                <h3>Float Sequence</h3>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <i>Generate a list of values between "Start" and "End", incrementing by "Step".  For example, for Start=1.1, End=6, Step=1.5, this will generate [1.1, 2.6, 4.1, 5.6]</i>
+                </div>
             </div>
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <i>Generate a list of values between "Start" and "End", incrementing by "Step".  For example, for Start=1.1, End=6, Step=1.5, this will generate [1.1, 2.6, 4.1, 5.6]</i>
-                    </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-name">Field Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-name" value="Number">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="decimal-number-range-name">Field Name:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="decimal-number-range-name" value="Number">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="decimal-number-range-description">Description:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="decimal-number-range-description" value="A generated number sequence">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="decimal-number-range-start">Start:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="decimal-number-range-start" value="1.1">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="decimal-number-range-end">End:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="decimal-number-range-end" value="6">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="decimal-number-range-step">Step:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="decimal-number-range-step" value="1.5">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="submit-decimal-number-range" class="btn btn-default">Create</button>
-                    </div>
-                </div>
-            </form>
-            <p/>
-            <div class="col-sm-10">
-                <h3>Float List</h3>
             </div>
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <i>Stick a list of values into Tableau as a datasource.  The provided example represents [1.3, -7, 5.1]</i>
-                    </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-description">Description:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-description" value="A generated number sequence">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="decimal-number-list-name">Field Name:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="decimal-number-list-name" value="Number">
-                    </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-start">Start:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-start" value="1.1">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="decimal-number-list-description">Description:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="decimal-number-list-description" value="A generated number sequence">
-                    </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-end">End:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-end" value="6">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="decimal-number-list-values">Values:</label>
-                    <div class="col-sm-10">
-                        <textarea class="form-control" id="decimal-number-list-values" rows="10">
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-range-step">Step:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-range-step" value="1.5">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" id="submit-decimal-number-range" class="btn btn-default">Create</button>
+                </div>
+            </div>
+        </form>
+        <p/>
+        <div class="col-sm-10">
+            <h3>Float List</h3>
+        </div>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <i>Stick a list of values into Tableau as a datasource.  The provided example represents [1.3, -7, 5.1]</i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-list-name">Field Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-list-name" value="Number">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-list-description">Description:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="decimal-number-list-description" value="A generated number sequence">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="decimal-number-list-values">Values:</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="decimal-number-list-values" rows="10">
 1.3
 -7
 5.1
 </textarea>
-                    </div>
                 </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="submit-decimal-number-list" class="btn btn-default">Create</button>
-                    </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" id="submit-decimal-number-list" class="btn btn-default">Create</button>
                 </div>
-            </form>
+            </div>
+        </form>
+    </div>
+    <div id="date" class="tab-pane fade">
+        <div class="col-sm-10">
+            <h3>Date with Day Increment Sequence</h3>
         </div>
-        <div id="date" class="tab-pane fade">
-            <div class="col-sm-10">
-                <h3>Date with Day Increment Sequence</h3>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <i>Generate a list of dates between "Start" and "End", incrementing by "Step" days.  For example, for Start=1/1/2017, End=1/6/2017, Step=2, this will generate [1/1/2017, 1/3/2017, 1/5/2017].  You can also use integers like "0", "3" and "-1" to represent the current day, 3 days from now and yesterday.</i>
+                </div>
             </div>
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <i>Generate a list of dates between "Start" and "End", incrementing by "Step" days.  For example, for Start=1/1/2017, End=1/6/2017, Step=2, this will generate [1/1/2017, 1/3/2017, 1/5/2017].  You can also use integers like "0", "3" and "-1" to represent the current day, 3 days from now and yesterday.</i>
-                    </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="date-with-day-step-range-name">Field Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="date-with-day-step-range-name" value="Date">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="date-with-day-step-range-name">Field Name:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="date-with-day-step-range-name" value="Date">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="date-with-day-step-range-description">Description:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="date-with-day-step-range-description" value="A generated date sequence">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="date-with-day-step-range-start">Start:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="date-with-day-step-range-start" value="1/1/2017">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="date-with-day-step-range-end">End:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="date-with-day-step-range-end" value="1/6/2017">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="date-with-day-step-range-step">Day Step:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="date-with-day-step-range-step" value="2">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="submit-date-with-day-step-range" class="btn btn-default">Create</button>
-                    </div>
-                </div>
-            </form>
-            <p/>
-            <div class="col-sm-10">
-                <h3>Date List</h3>
             </div>
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <i>Stick a list of dates into Tableau as a datasource.  The provided example represents [1/1/2017, 1/5/2017, 1/9/2017]</i>
-                    </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="date-with-day-step-range-description">Description:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="date-with-day-step-range-description" value="A generated date sequence">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="date-list-name">Field Name:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="date-list-name" value="Number">
-                    </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="date-with-day-step-range-start">Start:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="date-with-day-step-range-start" value="1/1/2017">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="date-list-description">Description:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="date-list-description" value="A generated number sequence">
-                    </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="date-with-day-step-range-end">End:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="date-with-day-step-range-end" value="1/6/2017">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="date-list-values">Values:</label>
-                    <div class="col-sm-10">
-                        <textarea class="form-control" id="date-list-values" rows="10">
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="date-with-day-step-range-step">Day Step:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="date-with-day-step-range-step" value="2">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" id="submit-date-with-day-step-range" class="btn btn-default">Create</button>
+                </div>
+            </div>
+        </form>
+        <p/>
+        <div class="col-sm-10">
+            <h3>Date List</h3>
+        </div>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <i>Stick a list of dates into Tableau as a datasource.  The provided example represents [1/1/2017, 1/5/2017, 1/9/2017]</i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="date-list-name">Field Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="date-list-name" value="Number">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="date-list-description">Description:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="date-list-description" value="A generated number sequence">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="date-list-values">Values:</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="date-list-values" rows="10">
 1/1/2017
 1/5/2017
 1/9/2017
 </textarea>
-                    </div>
                 </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="submit-date-list" class="btn btn-default">Create</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div id="datetime" class="tab-pane fade">
-            Maybe one day?
-        </div>
-        <div id="string" class="tab-pane fade">
-            <div class="col-sm-10">
-                <h3>String List</h3>
             </div>
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <i>Stick a list of strings into Tableau as a datasource.  The provided example represents ["foo", "bar"]</i>
-                    </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" id="submit-date-list" class="btn btn-default">Create</button>
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="string-list-name">Field Name:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="string-list-name" value="Number">
-                    </div>
+            </div>
+        </form>
+    </div>
+    <div id="datetime" class="tab-pane fade">
+        Maybe one day?
+    </div>
+    <div id="string" class="tab-pane fade">
+        <div class="col-sm-10">
+            <h3>String List</h3>
+        </div>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <i>Stick a list of strings into Tableau as a datasource.  The provided example represents ["foo", "bar"]</i>
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="string-list-description">Description:</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="string-list-description" value="A generated number sequence">
-                    </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="string-list-name">Field Name:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="string-list-name" value="Number">
                 </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="string-list-values">Values:</label>
-                    <div class="col-sm-10">
-                        <textarea class="form-control" id="string-list-values" rows="10">
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="string-list-description">Description:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="string-list-description" value="A generated number sequence">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2" for="string-list-values">Values:</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="string-list-values" rows="10">
 foo
 bar
 </textarea>
-                    </div>
                 </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" id="submit-string-list" class="btn btn-default">Create</button>
-                    </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" id="submit-string-list" class="btn btn-default">Create</button>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
+</div>
 </body>
 </html>
