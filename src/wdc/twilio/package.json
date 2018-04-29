@@ -1,0 +1,31 @@
+{
+  "name": "twilio-wdc",
+  "version": "0.0.1",
+  "description": "Tableau Web Data Connector for Twilio",
+  "private": true,
+  "scripts": {
+    "build": "webpack",
+    "lint": "tslint src/**/*.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Hermann Chong",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/request": "^2.47.0",
+    "bootstrap": "^4.1.0",
+    "css-loader": "^0.28.11",
+    "jquery": "^3.3.1",
+    "net": "^1.0.2",
+    "popper.js": "^1.14.3",
+    "request": "^2.85.0",
+    "style-loader": "^0.21.0",
+    "tls": "^0.0.1",
+    "ts-loader": "^4.2.0",
+    "tslint": "^5.9.1",
+    "typescript": "^2.8.3",
+    "webpack": "^4.6.0",
+    "webpack-cli": "^2.0.15"
+  },
+  "dependencies": {}
+}

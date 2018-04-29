@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Twilio Web Data Connector</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <script src="https://connectors.tableau.com/libs/tableauwdc-2.0.latest.js" type="text/javascript"></script>
+    <script src="bundle.js"></script>
+  </head>
+  <body>
+      <form class="form-horizontal">
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="sid">Account SID:</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="sid" placeholder="Enter account SID">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="token">Auth Token:</label>
+          <div class="col-sm-10"> 
+            <input type="password" class="form-control" id="token" placeholder="Enter auth token">
+          </div>
+        </div>
+        <div class="form-group"> 
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" id="submitButton" class="btn btn-default">Submit</button>
+          </div>
+        </div>
+      </form>
+  </body>
+</html>
