@@ -31,9 +31,9 @@ export class TwilioClient {
         this.token = token;
     }
 
-    public getUsageRecords(doneCallback: () =>  void, callback: (elem: any) => void): void {
+    public getDailyCallUsageRecords(doneCallback: () =>  void, callback: (elem: any) => void): void {
         // tslint:disable-next-line:max-line-length
-        this.get(`https://api.twilio.com/2010-04-01/Accounts/${this.sid}/Usage/Records/Daily.json?PageSize=${this.PAGE_SIZE}`,
+        this.get(`https://api.twilio.com/2010-04-01/Accounts/${this.sid}/Usage/Records/Daily.json?Category=calls&PageSize=${this.PAGE_SIZE}`,
             doneCallback,
             (body) => {
                 callback(body);
@@ -51,10 +51,15 @@ export class TwilioClient {
         };
 
         request(options, (err, response, resp: IUsageResponse) => {
-            callback(resp.usage_records);
+            if (typeof resp.usage_records !== "undefined") {
+                callback(resp.usage_records);
+            } else {
+                doneCallback();
+                return;
+            }
 
             if (resp.next_page_uri !== null) {
-                this.get(resp.next_page_uri, doneCallback, callback);
+                this.get(`https://api.twilio.com${resp.next_page_uri}`, doneCallback, callback);
             } else {
                 doneCallback();
             }

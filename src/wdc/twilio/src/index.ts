@@ -95,15 +95,15 @@ tableauConnector.getSchema = (schemaCallback) => {
 
     schemaCallback([{
         columns: usageRecordSchemaColumns,
-        description: "Twilio Usage Data",
-        id: "twilioUsageData",
+        description: "Twilio Daily Call Usage Data",
+        id: "TwilioDailyCallUsageData",
     }]);
 };
 
 // Download the data
 tableauConnector.getData = (table, doneCallback) => {
     const twilioClient = new TwilioClient(tableau.username, tableau.password);
-    twilioClient.getUsageRecords(doneCallback, (records: IUsageRecord[]) => {
+    twilioClient.getDailyCallUsageRecords(doneCallback, (records: IUsageRecord[]) => {
         table.appendRows(records);
     });
 };
@@ -117,7 +117,7 @@ function getInputValue(id: string): string {
 // Create event listeners for when the user submits the form
 window.onload = () => {
     document.getElementById("submitButton").addEventListener("click", (e: Event) => {
-        tableau.connectionName = "Twilio Usage Data";
+        tableau.connectionName = "Twilio Daily Call Usage Data";
         tableau.username = getInputValue("sid");
         tableau.password = getInputValue("token");
         tableau.submit();
