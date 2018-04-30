@@ -31,15 +31,16 @@ export class TwilioClient {
         this.token = token;
     }
 
-    public getUsageRecords(callback: (elem: any) => void): void {
+    public getUsageRecords(doneCallback: () =>  void, callback: (elem: any) => void): void {
         // tslint:disable-next-line:max-line-length
         this.get(`https://api.twilio.com/2010-04-01/Accounts/${this.sid}/Usage/Records.json?PageSize=${this.PAGE_SIZE}`,
+            doneCallback,
             (body) => {
                 callback(body);
             });
     }
 
-    private get(url: string, callback: (records: IUsageRecord[]) => void) {
+    private get(url: string, doneCallback: () => void, callback: (records: IUsageRecord[]) => void) {
         const options = {
             auth: {
                 password: this.token,
@@ -53,7 +54,9 @@ export class TwilioClient {
             callback(resp.usage_records);
 
             if (resp.next_page_uri !== null) {
-                this.get(resp.next_page_uri, callback);
+                this.get(resp.next_page_uri, doneCallback, callback);
+            } else {
+                doneCallback();
             }
         });
     }

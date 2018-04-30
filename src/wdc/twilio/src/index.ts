@@ -103,11 +103,9 @@ tableauConnector.getSchema = (schemaCallback) => {
 // Download the data
 tableauConnector.getData = (table, doneCallback) => {
     const twilioClient = new TwilioClient(tableau.username, tableau.password);
-    twilioClient.getUsageRecords((records: IUsageRecord[]) => {
+    twilioClient.getUsageRecords(doneCallback, (records: IUsageRecord[]) => {
         table.appendRows(records);
     });
-
-    doneCallback();
 };
 
 tableau.registerConnector(tableauConnector);
