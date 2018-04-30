@@ -33,7 +33,7 @@ export class TwilioClient {
 
     public getUsageRecords(doneCallback: () =>  void, callback: (elem: any) => void): void {
         // tslint:disable-next-line:max-line-length
-        this.get(`https://api.twilio.com/2010-04-01/Accounts/${this.sid}/Usage/Records.json?PageSize=${this.PAGE_SIZE}`,
+        this.get(`https://api.twilio.com/2010-04-01/Accounts/${this.sid}/Usage/Records/Daily.json?PageSize=${this.PAGE_SIZE}`,
             doneCallback,
             (body) => {
                 callback(body);
