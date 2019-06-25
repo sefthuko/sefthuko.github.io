@@ -1,0 +1,399 @@
+<html>
+<head>
+    <title>Aha! Web Data Connector</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script src="https://connectors.tableau.com/libs/tableauwdc-2.0.latest.js" type="text/javascript"></script>
+    <script>
+
+(function() {
+    // Create the connector object
+    var myConnector = tableau.makeConnector();
+
+    // Define the schema
+    myConnector.getSchema = function(schemaCallback) {
+        var config = JSON.parse(tableau.connectionData);
+
+        schemaCallback([{
+            id: "ideas",
+            description: "Aha! Ideas",
+            columns: [{
+                         id: "id",
+                         alias: "id",
+                         description: "ID",
+                         dataType: tableau.dataTypeEnum.string
+                     },
+                     { 
+                         id: "reference_num",
+                         alias: "Reference Number",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.string
+                     },
+                     { 
+                         id: "name",
+                         alias: "Name",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.string
+                     },
+                     { 
+                         id: "created_at",
+                         alias: "Created At",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.datetime
+                     },
+                     { 
+                         id: "created_by_user_name",
+                         alias: "Created By",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.string
+                     },
+                     { 
+                         id: "updated_at",
+                         alias: "Updated At",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.datetime
+                     },
+                     { 
+                         id: "score",
+                         alias: "Score",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.int
+                     },
+                     { 
+                         id: "business_value",
+                         alias: "Business Value",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.int
+                     },
+                     { 
+                         id: "time_criticality",
+                         alias: "Time Criticality",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.int
+                     },
+                     { 
+                         id: "risk_reduction_enablement",
+                         alias: "Risk Reduction/Enablement",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.int
+                     },
+                     { 
+                         id: "job_duration",
+                         alias: "Job Duration (proxy = Job Size)",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.int
+                     },
+                     { 
+                         id: "votes",
+                         alias: "Votes",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.int
+                     },
+                     { 
+                         id: "product_name",
+                         alias: "Product Name",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.string
+                     },
+                     { 
+                         id: "workflow_status_name",
+                         alias: "Workflow Status",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.string
+                     },
+                     { 
+                         id: "description",
+                         alias: "Description",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.string
+                     },
+                     { 
+                         id: "url",
+                         alias: "URL",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.string
+                     },
+                     { 
+                         id: "visibility",
+                         alias: "Visibility",
+                         description: "",
+                         dataType: tableau.dataTypeEnum.string
+                     }
+                     ]
+        }]);
+    };
+
+    function formatDatetime(datetime) {
+        return datetime.replace("T", " ").replace("Z", "");
+    }
+
+    function delay(delayValue) {
+        var promise = $.Deferred();
+
+        function callback() {
+            promise.resolve(delayValue);
+        }
+
+        setTimeout(callback, delayValue*100);
+
+        return promise;
+    }
+
+    // Download the data
+    myConnector.getData = function(table, doneCallback) {
+        var config = JSON.parse(tableau.connectionData);
+
+        var urlBuilder = makeUrlBuilder(config.ahaSubdomain, config.apiKey);
+
+        function getNumberOfIdeaPages() {
+            return $.getJSON(urlBuilder("products/" + config.productId + "/ideas"))
+                .then(function(data) {
+                    return data.pagination.total_pages;
+                });
+        }
+
+        function getAllIdeaIds(numberOfPages) {
+            var promise = $.Deferred();
+            var promises = [];
+            var ids = [];
+            for (var i = 1; i <= numberOfPages; i++) {
+                promises.push($.getJSON(urlBuilder("products/" + config.productId + "/ideas?page=" + i), function(data) {
+                    for (var j = 0; j < data.ideas.length; j++) {
+                        ids.push(data.ideas[j].id);
+                    }
+                }));
+            }
+
+            $.when.apply($, promises).done(function() {
+                promise.resolve(ids);
+            });
+
+            return promise;
+        }
+
+        function getAllIdeas(ids) {
+            var promise = $.Deferred();
+            var promises = [];
+
+            for (var i = 0; i < ids.length; i++) {
+                promises.push(delay(i).then(function(i) {
+                    var id = ids[i];
+
+                    return $.getJSON(urlBuilder("ideas/" + id), function(resp) {
+                        var idea = resp.idea;
+
+                        var business_value = null;
+                        var time_criticality = null;
+                        var risk_reduction_enablement = null;
+                        var job_duration = null;
+                        for (var j = 0; j < idea.score_facts.length; j++) {
+                            var score_fact = idea.score_facts[j];
+                            if (score_fact.name === "Business Value") {
+                                business_value = score_fact.value;
+                            } else if (score_fact.name === "Time Criticality") {
+                                time_criticality = score_fact.value;
+                            } else if (score_fact.name === "Risk reduction/enablement") {
+                                risk_reduction_enablement = score_fact.value;
+                            } else if (score_fact.name === "Job Duration (proxy = Job Size)") {
+                                job_duration = score_fact.value;
+                            }
+                        }
+    
+                        table.appendRows([{
+                            id: idea.id,
+                            name: idea.name,
+                            reference_num: idea.reference_num,
+                            score: idea.score,
+                            created_at: formatDatetime(idea.created_at),
+                            updated_at: formatDatetime(idea.updated_at),
+                            product_name: idea.product.name,
+                            votes: idea.votes,
+                            workflow_status_name: idea.workflow_status.name,
+                            description: idea.description.body,
+                            visibility: idea.visibility,
+                            url: idea.url,
+                            created_by_user_name: idea.created_by_user.name,
+                            business_value: business_value,
+                            time_criticality: time_criticality,
+                            risk_reduction_enablement: risk_reduction_enablement,
+                            job_duration: job_duration
+                        }]);
+                    });
+                }));
+            }
+
+            $.when.apply($, promises).done(function() {
+                promise.resolve();
+            });
+
+            return promise;
+        }
+
+        return getNumberOfIdeaPages()
+            .then(getAllIdeaIds)
+            .then(getAllIdeas)
+            .done(doneCallback, doneCallback);
+    }
+
+    tableau.registerConnector(myConnector);
+
+    function makeUrlBuilder(ahaSubdomain, apiKey) {
+        return function(path) {
+            //var url = "https://cors-anywhere.herokuapp.com/https://" + ahaSubdomain + ".aha.io/api/v1/" + path;
+            var url = "https://" + ahaSubdomain + ".aha.io/api/v1/" + path;
+            if (url.indexOf("?") !== -1) {
+                return url + "&access_token=" + apiKey;
+            } else {
+                return url + "?access_token=" + apiKey;
+            }
+        }
+    }
+
+    // from underscore.js
+    // Returns a function, that, as long as it continues to be invoked, will not
+    // be triggered. The function will be called after it stops being called for
+    // N milliseconds. If `immediate` is passed, trigger the function on the
+    // leading edge, instead of the trailing.
+    function debounce(func, wait, immediate) {
+    	var timeout;
+    	return function() {
+    		var context = this, args = arguments;
+    		var later = function() {
+    			timeout = null;
+    			if (!immediate) func.apply(context, args);
+    		};
+    		var callNow = immediate && !timeout;
+    		clearTimeout(timeout);
+    		timeout = setTimeout(later, wait);
+    		if (callNow) func.apply(context, args);
+    	};
+    };
+
+    function fillProduct() {
+        var ahaSubdomain = $('#aha-subdomain').val();
+        var apiKey = $('#api-key').val();
+
+        if (ahaSubdomain === '' || apiKey === '') {
+            return;
+        }
+
+        var urlBuilder = makeUrlBuilder(ahaSubdomain, apiKey);
+
+        $('#product').html('');
+
+        function getNumberOfProductPages() {
+            return $.getJSON(urlBuilder("products"))
+                .then(function(data) {
+                    return data.pagination.total_pages;
+                });
+        }
+
+        function getAllProducts(numberOfPages) {
+            var promise = $.Deferred();
+            var promises = [];
+            var products = [];
+
+            for (var i = 1; i <= numberOfPages; i++) {
+                promises.push($.getJSON(urlBuilder("products?page=" + i))
+                    .then(function(data) {
+                        products.push.apply(products, data.products);
+                    }));
+            }
+
+            $.when.apply($, promises).done(function() {
+                products.sort(function(a, b) {
+                    return a.name.localeCompare(b.name);
+                });
+
+                promise.resolve(products);
+            });
+
+            return promise;
+        }
+
+        getNumberOfProductPages()
+            .then(getAllProducts)
+            .then(function(products) {
+                products.forEach(function(element) {
+                    $('#product').append($('<option>', { value: element.id, text: element.name }));
+                });
+            });
+    }
+
+    function fillNextProductPage(urlBuilder, page) {
+        $.getJSON(urlBuilder("products?page=" + page), function(data) {
+            data.products.forEach(function(element) {
+                $('#product').append($('<option>', { value: element.id, text: element.name }));
+            });
+            if (data.pagination.total_pages > data.pagination.current_page) {
+                fillNextProductPage(urlBuilder, page + 1);
+            }
+        });
+    }
+
+    // Create event listeners for when the user submits the form
+    $(document).ready(function() {
+
+        $('#aha-subdomain, #api-key').change(debounce(fillProduct, 250));
+
+        $("#submit").click(function() {
+            tableau.connectionName = "Aha!";
+            tableau.connectionData = JSON.stringify({
+                ahaSubdomain: $("#aha-subdomain").val(),
+                apiKey: $("#api-key").val(),
+                productId: $("#product").children("option:selected").val()
+            });
+            tableau.submit();
+        });
+
+    });
+})();
+    </script>
+</head>
+
+<body>
+    Create an API Key at <a href="https://secure.aha.io/settings/api_keys">https://secure.aha.io/settings/api_keys</a>
+    <p/>
+    <p/>
+    If this stops working, please send me an email at <a href="mailto:Hermann.Chong@tableau.com">Hermann.Chong@tableau.com</a>
+    <p/>
+    <p/>
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-sm-4" for="aha-subdomain">Aha! Subdomain:</label>
+            <div class="input-group col-sm-8">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">https://</span>
+                </div>
+                <input type="text" class="form-control" id="aha-subdomain" placeholder="Aha! Subdomain">
+                <div class="input-group-append">
+                    <span class="input-group-text">.aha.io/</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-4" for="api-key">API Key:</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="api-key">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-4" for="product">Product:</label>
+            <div class="col-sm-8">
+                <select class="form-control" id="product">
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-8">
+                <button type="button" id="submit" class="btn btn-primary">Create</button>
+            </div>
+        </div>
+    </form>
+</body>
+</html>
